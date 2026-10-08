@@ -14,6 +14,11 @@ mcp = FastMCP("和乐创意城小红书热点雷达")
 
 
 def client() -> RedFoxClient:
+    # A public endpoint without MCP OAuth must never be allowed to spend the
+    # upstream RedFox balance.  Keep this off until an OAuth-protected release
+    # is deployed and ChatGPT is configured to use that authorization flow.
+    if os.environ.get("ENABLE_REDFOX_TOOLS", "false").lower() != "true":
+        raise RuntimeError("热点雷达暂未开放。请先完成 MCP OAuth 配置。")
     key = os.environ.get("REDFOX_API_KEY")
     if not key:
         raise RuntimeError("服务端尚未配置 REDFOX_API_KEY。请在部署平台的 Secret 中配置。")
@@ -108,7 +113,11 @@ def get_note_detail(work_id: str) -> dict:
 @mcp.tool()
 def health() -> dict:
     """检查热点雷达是否已配置服务端密钥。不会返回密钥。"""
-    return {"ok": bool(os.environ.get("REDFOX_API_KEY")), "read_only": True}
+    return {
+        "ok": bool(os.environ.get("REDFOX_API_KEY")),
+        "tools_enabled": os.environ.get("ENABLE_REDFOX_TOOLS", "false").lower() == "true",
+        "read_only": True,
+    }
 
 
 if __name__ == "__main__":
