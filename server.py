@@ -113,4 +113,4 @@ def health() -> dict:
 
 if __name__ == "__main__":
     # Streamable HTTP is the remote transport to register in ChatGPT.
-    mcp.run(transport="streamable-http", host="0.0.0.0", port=int(os.getenv("PORT", "8080")), path="/mcp")
+    mcp.run(transport="http", host="0.0.0.0", port=int(os.getenv("PORT", "8080")), path="/mcp")
